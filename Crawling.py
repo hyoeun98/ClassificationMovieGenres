@@ -33,7 +33,7 @@ def crawl(i):
         movie_title = driver.find_element_by_xpath(f'//*[@id="root"]/div[1]/main/div[1]/section/ul/li[{i}]/div[2]/div/div/div[3]/h1')
     except: # 제목이 img
         try:
-            movie_title = driver.find_element_by_xpath(f'//*[@id="root"]/div[1]/main/div[1]/section/ul/li[{i}]/div[2]/div/div/div[3]/img').get_attribute('alt')
+            movie_title = driver.find_element_by_xpath(f'// [@id="root"]/div[1]/main/div[1]/section/ul/li[{i}]/div[2]/div/div/div[3]/img').get_attribute('alt')
         except:
             data = {}
             return data
@@ -57,39 +57,40 @@ def crawl(i):
     return data
 
 
+if __name__ == '__main__':
+    df = pd.DataFrame(columns=['title', 'story', 'rating', 'info'])
 
-df = pd.DataFrame(columns=['title', 'story', 'rating', 'info'])
-for k in range(1,202):
-    print(k)
-    driver = log_in()
-    driver.find_element_by_xpath('//*[@id="tags"]').click() # 태그 선택
-    driver.find_element_by_xpath(f'//*[@id="root"]/div[1]/main/div[1]/div[1]/div/div[1]/div[3]/div/div[2]/div[{k}]').click() # 태그 선택
-    time.sleep(3)
-    for i in range(1,50): #한 tag 당 50row 씩 받아 오기
-        try:
-            driver.find_element_by_class_name("css-wvwa3p")
-        except:
-            pass
-        else:
-            driver.quit()
-            break
-            
-        for j in range(1,5):
-            movie = driver.find_element_by_xpath(f'//*[@id="root"]/div[1]/main/div[1]/section/ul/li[{i}]/div[1]/ul/li[{j}]/div/div[1]/div[1]/div[2]')
-            ActionChains(driver).move_to_element(movie).pause(1.5).perform()
+    for k in range(1,202):
+        print(k)
+        driver = log_in()
+        driver.find_element_by_xpath('//*[@id="tags"]').click() # 태그 선택
+        driver.find_element_by_xpath(f'//*[@id="root"]/div[1]/main/div[1]/div[1]/div/div[1]/div[3]/div/div[2]/div[{k}]').click() # 태그 선택
+        time.sleep(3)
+        for i in range(1,50): #한 tag 당 50row 씩 받아 오기
             try:
-                hidden_button = driver.find_element_by_class_name('css-g373u1-StyledEmbedButton').click()
+                driver.find_element_by_class_name("css-wvwa3p")
             except:
+                pass
+            else:
+                driver.quit()
+                break
+
+            for j in range(1,5):
+                movie = driver.find_element_by_xpath(f'//*[@id="root"]/div[1]/main/div[1]/section/ul/li[{i}]/div[1]/ul/li[{j}]/div/div[1]/div[1]/div[2]')
+                ActionChains(driver).move_to_element(movie).pause(1.5).perform()
+                try:
+                    hidden_button = driver.find_element_by_class_name('css-g373u1-StyledEmbedButton').click()
+                except:
+                    exit_button = driver.find_element_by_class_name("css-zaijf6").click()
+                    time.sleep(1)
+                    print(i)
+                    continue
+                df = df.append(crawl(i),ignore_index=True)
                 exit_button = driver.find_element_by_class_name("css-zaijf6").click()
                 time.sleep(1)
                 print(i)
-                continue
-            df = df.append(crawl(i),ignore_index=True)
-            exit_button = driver.find_element_by_class_name("css-zaijf6").click()
-            time.sleep(1)
-            print(i)
-            
-    driver.quit()
 
-df.to_csv("watcha_crawling.csv", mode='a', index=False, header=False)
+        driver.quit()
+
+    df.to_csv("watcha_crawling.csv", mode='a', index=False, header=False)
 
