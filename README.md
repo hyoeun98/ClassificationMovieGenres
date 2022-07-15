@@ -8,3 +8,5 @@
 3. 각 영화의 등장인물을 crawling -> mecab의 user dictionary 등재
 4. mecab을 통해 tokenization << 지금
 5. word2cev?
+---
+### New Pipeline
